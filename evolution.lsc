@@ -1,0 +1,155 @@
+Feature +stress
+
+Feature type(voiceless, voiced, vowel)
+
+Feature height(low, midlow, mid, midhigh, high)
+Feature frontness(front, central, back)
+
+Feature place(labial, dental, palatal, velar)
+Feature manner(stop, spirant, affricate, nasal, tap, trill, lateral, glide)
+
+Diacritic ˈ (floating) [+stress]
+
+Symbol a    [low        central vowel]
+Symbol ɛ    [midlow     front   vowel]
+Symbol e    [midhigh    front   vowel]
+Symbol i    [high       front   vowel]
+Symbol ɔ    [midlow     back    vowel]
+Symbol o    [midhigh    back    vowel]
+Symbol u    [high       back    vowel]
+
+Symbol p    [voiceless  labial  stop]
+Symbol b    [voiced     labial  stop]
+Symbol t    [voiceless  dental  stop]
+Symbol d    [voiced     dental  stop]
+Symbol k    [voiceless  velar   stop]
+Symbol g    [voiced     velar   stop]
+Symbol ts   [voiceless  dental  affricate]
+Symbol dz   [voiced     dental  affricate]
+Symbol tʃ   [voiceless  palatal affricate]
+Symbol dʒ   [voiced     palatal affricate]
+Symbol f    [voiceless  labial  spirant]
+Symbol v    [voiced     labial  spirant]
+Symbol s    [voiceless  dental  spirant]
+Symbol z    [voiced     dental  spirant]
+Symbol ʃ    [voiceless  palatal spirant]
+Symbol ʒ    [voiced     palatal spirant]
+Symbol m    [voiced     labial  nasal]
+Symbol n    [voiced     dental  nasal]
+Symbol ɲ    [voiced     palatal nasal]
+Symbol l    [voiced     dental  lateral]
+Symbol ʎ    [voiced     palatal lateral]
+Symbol ɾ    [voiced     dental  tap]
+Symbol r    [voiced     dental  trill]
+Symbol j    [voiced     palatal glide]
+Symbol w    [voiced     velar   glide]
+
+Class E {ɛ, e, i}
+Class O {ɔ, o, u}
+Class V {a, @E, @O}
+Class stop {p, b, t, d, k, g}
+Class affricate {ts, dz, tʃ, dʒ}
+Class fricative {f, v, s, z, ʃ, ʒ, h}
+Class nasal {m, n, ɲ}
+Class liquid {ɾ, r, l, ʎ}
+Class glide {j, w}
+Class obstruent {@stop, @affricate, @fricative}
+Class sonorant {@nasal, @liquid, @glide}
+Class C {@obstruent, @sonorant}
+
+Class latinvowels {a, e, i, o, u, ae, oe, ā, ē, ī, ō, ū}
+
+deromanizer:
+    c => k
+    {h, ph} => {*, f}
+    q => k
+    m => n / $ @C* @V* _ $
+    m => * / _ $
+    r => r
+    u => w / {g, q} _
+    v => w
+    x => ks
+    z => dz
+    Then:
+  (
+    {ae, oe, ā, ē, ī, ō, ū} => [+stress] / _ @C* @latinvowels @C* $
+    Else:
+    @latinvowels => [+stress] / _ {dz, @C {@obstruent, @nasal}} @latinvowels @C* $
+    Else:
+    @latinvowels => [+stress] / _ (@C* @latinvowels)*2 @C* $
+    Else:
+    @latinvowels => [+stress] / $ @C* _
+  )
+    Then:
+    {e, i, u}&[-stress] => {j, j, w} / _ @latinvowels
+    {ā, ē, ī, ō, ū} => {a, e, i, o, u}
+    {ae, au, eu, oe} => {ɛ, aw, ew, e}
+    {e, i, o, u} => {ɛ, e, ɔ, o}
+    Then:
+    w => v / {$, @V} _ @V
+    {ɛ, ɔ}&[-stress] => {e, o}
+    j => ʒ / $ _ @V
+    j => ʒʒ / @V _ @V
+
+plosive-yod-palatalisation:
+    tj => tsj // {s, t} _
+    kj => tstsj
+    gj => j
+    dj => j / {$, @V} _ @V # TODO: post-consonantal
+
+velar-front-vowel-palatalisaion:
+    {k, g} => {tsts, j} / _ @E
+
+intervocalic-voicing:
+    [voiceless] => [voiced] / @V _ @V
+
+yod-fortition:
+    j => dʒ / {$, @V} _ @V
+
+degemination:
+    @C$1 $1 => $1
+
+alveolar-palatalisation:
+    sj => jʃ
+    nj => ɲ
+    lj => ʎ
+    rj => jr
+
+velar-vocalisation:
+    kt => jt
+    ks => jʃ
+    gn => ɲ
+
+lateral-palatalisation:
+    l => ʎ / $ {p, k, f} _
+    l => ʎ / @V {b, k, g} _ @V
+
+delabialisation:
+    w => * / _ {@E, @O}
+
+a-raising:
+    {aj, aw} => {ɛj, ɔw}
+
+romanizer:
+    {a, ɛ, e, i, ɔ, o, u} => {a, e, e, i, o, o, u}
+    Then:
+    [+stress] => [-stress]
+    kwa => qua
+    k => qu / _ {j, @E}
+    k => c
+    g => gu / _ {j, @E}
+    tʃ => ch
+    # dʒ => j / $ _
+    dʒ => gi / _ {a, @O}
+    dʒ => g / _ {j, @E}
+    ʃ => x
+    ʒ => j
+    ts => C / _ {a, @O}
+    ts => c / _ {j, @E}
+    dz => z
+    z => s
+    s => ss / @V _ @V
+    ɲ => nh
+    ʎ => lh
+    j => i
+    w => u
